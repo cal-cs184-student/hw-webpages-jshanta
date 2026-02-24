@@ -32,16 +32,11 @@
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+		Link to webpage: <a href="https://cal-cs184-student.github.io/hw-webpages-jshanta/hw1/index.html">https://cal-cs184-student.github.io/hw-webpages-jshanta/hw1/index.html</a>
 		
 		<br>
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-
-		<figure>
-			<img src="lion.jpg" alt="Lion" style="width:50%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+		Link to GitHub repository: <a href="https://github.com/cal-cs184-student/hw1-rasterizer-shanta">https://github.com/cal-cs184-student/hw1-rasterizer-shanta</a>
 
 		<!--
 		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
@@ -67,62 +62,241 @@ Below is my screenshot of basic/test4.svg using the default view settings, saved
 			<img src="task1ss.png" alt="Task 1 Screenshot" style="width:50%"/>
 			<figcaption>basic/test4.svg</figcaption>
 		</figure>
+		
+		<h2>Task 2: Antialiasing by Supersampling</h2>
+		To implement supersampling, I modified the rasterizer so that instead of taking one sample per pixel, it takes multiple sub-pixel samples 
+		inside each pixel. These subsamples are stored in a data structure called <code>sample_buffer</code>, which acts as a temporary high-resolution 
+		framebuffer. The sample rate determines how many subsamples are taken per pixel. For example, a sample rate of 4 means that each pixel is divided 
+		into a 2 by 2 grid of subsamples. A sample rate of 16 divides each pixel into a 4 by 4 grid. For each subsample location, I run the same point in 
+		triangle test used in Task 1. If the subsample lies inside the triangle, I store the color of the triangle in the corresponding entry of the sample 
+		buffer. After all triangles are rasterized, I average all subsamples for each pixel in <code>resolve_to_framebuffer()</code> and write the final 
+		averaged color into the framebuffer. This produces the final image displayed on screen. Supersampling helps reduce aliasing, which appears as jagged or stair-stepped
+edges along triangle boundaries. With only one sample per pixel, each pixel is
+either completely filled or not filled at all, which causes sharp transitions.
+When using multiple subsamples, some pixels along edges may be partially covered
+by the triangle. Averaging these subsamples produces smoother transitions between
+the triangle and the background. In other words, supersampling allows the rasterizer to approximate how much of a
+pixel is actually covered by the triangle, instead of making a simple yes-or-no
+decision at the pixel center. Below are screenshots of <code>basic/test4.svg</code> rendered with sample rates
+1, 4, and 16. The pixel inspector is positioned over a thin red triangle edge
+to highlight the differences.
 
-
-		<!-- <p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="task2ss1.png" width="400px"/>
+				  <figcaption>supersampling rate of 1</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="task2ss2.png" width="400px"/>
+				  <figcaption>supersampling rate of 4</figcaption>
 				</td>
 			  </tr>
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="task2ss3.png" width="400px"/>
+				  <figcaption>supersampling rate of 9</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="task2ss4.png" width="400px"/>
+				  <figcaption>supersampling rate of 16</figcaption>
 				</td>
 			  </tr>
 			</table>
-		</div> -->
-		
-		<h2>Task 2: Antialiasing by Supersampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		</div>
+
+		<p>
+At sample rate 1, the triangle edges appear jagged because each pixel is either
+fully colored or not colored at all. The zoom view shows sharp stair-step patterns.
+</p>
+
+<p>
+At sample rate 4, some pixels near the boundary become partially covered, so their
+color becomes lighter or blended with the background. This produces a smoother
+edge.
+</p>
+
+<p>
+At sample rate 16, the transition becomes even smoother because the coverage
+estimation is more precise. The edge looks more continuous and less pixelated,
+especially around thin or slanted triangle boundaries.
+</p>
+
+<p>
+These results demonstrate how increasing the number of sub-pixel samples improves
+edge quality by more accurately approximating fractional pixel coverage.
+</p>
+
 
 		<h2>Task 3: Transforms</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		For this task, I edited the provided <code>robot.svg</code> to make cubeman look like he is waving.
+I did this by applying hierarchical transforms to the right arm: I rotated the entire right arm group
+upwards at the shoulder, and then rotated the forearm segment even more to create a waving pose.
+Because the arm pieces are nested inside <code>&lt;g&gt;</code> groups, the forearm rotation happens in the
+local coordinate system of the arms so it naturally moves with the upper arm and looks like a single connected motion. Overall, my goal was to create a simple pose that clearly demonstrates the effect of transforms and the
+importance of applying them hierarchically to grouped objects.
+
+		<figure>
+			<img src="task3ss.png" alt="Task 3 Screenshot" style="width:50%"/>
+			<figcaption>Robot waving pose!</figcaption>
+		</figure>
+
+
 
 		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+		Barycentric coordinates are a way of expressing the position of a point inside a triangle
+		as a weighted combination of the three vertices of the triangle. Instead of describing a point
+		using standard (x, y) coordinates, we describe it using three weights, one for each vertex.
+		If a point lies inside the triangle, these three weights are all non-negative and add up
+		to 1. Each weight represents how much influence that vertex has on the final value at
+		that point. Points closer to a vertex will have a larger weight for that vertex.
+		In rasterization, barycentric coordinates are especially useful for interpolating
+		attributes across a triangle. For example, if one vertex is red, one is green, and one is blue,
+		we can multiply each color by its corresponding barycentric weight and add them together.
+		The result is a smoothly blended gradient across the entire triangle.
+		In the example below, each vertex of the triangle has a different color (red, green,
+		and blue). Using barycentric interpolation, the colors smoothly blend together across
+		the interior of the triangle.
+		</p>
+		<figure>
+			<img src="task4ss.png" alt="Task 4 Screenshot" style="width:50%"/>
+			<figcaption>Barycentric interpolation!</figcaption>
+		</figure>
+
+		<p>
+		Because barycentric coordinates provide a continuous weighting of the three vertices,
+		color changes smoothly from one vertex to another. Near the red vertex, the red weight
+		is dominant. Near the green vertex, the green weight dominates. In the center of the
+		triangle, all three weights contribute, producing blended colors.
+		</p>
+
+		<p>
+		This same idea can also be used to interpolate other attributes, such as texture
+		coordinates, normals, or depth values, making barycentric coordinates a fundamental
+		tool in the graphics pipeline.
+		</p>
+
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Pixel sampling is the step where we decide what color to use for a screen pixel when a texture is mapped
+onto a triangle. Each pixel on the screen corresponds to a point inside the triangle, and that point
+maps to a location in the texture image using the UV coordinates of the triangle. Once we know the UV
+location, we sample the texture at that location to produce the final color.
+In my implementation, I compute the UV coordinate at a sample point inside the triangle using
+barycentric interpolation of the vertices of the triangle. Then I convert that UV coordinate into a
+location in the texture (in texel/pixel space). Finally, I use either nearest-neighbor or bilinear
+sampling to return the texture color at that location.
+Nearest-neighbor sampling chooses the single closest texel (texture pixel) and uses its color directly.
+This is very fast, but it often produces a pixelated look when the texture is magnified
+or when the texture coordinates land between texels.
+Bilinear sampling improves quality by blending the colors of the four surrounding texels. This creates
+a smoother, more continuous appearance, especially along edges and in regions with small details.
+It tends to reduce the harsh blockiness you get from nearest sampling.
+Supersampling (sample rate 16) helps reduce jagged edges by taking multiple sub-pixel samples inside
+each pixel and averaging them. This reduces aliasing in screen-space geometry (triangle boundaries).
+However, it does not automatically fix texture blockiness caused by nearest-neighbor sampling —
+that is why bilinear filtering still makes a big difference even at higher sample rates.
 
-		<h2>(Optional) Task 7: Extra Credit - Draw Something Creative!</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Below are four screenshots taken using the pixel inspector to highlight a region with sharp transitions
+in the texture. Bilinear filtering produces smoother transitions and less blocky artifacts than nearest,
+and higher supersampling further reduces aliasing along edges. The zoomed region contains high-frequency details 
+(sharp lettering and edges). With nearest sampling, small changes in UV can suddenly jump to a different texel, which creates noticeable blocky steps.
+With bilinear sampling, the color changes more gradually because it blends nearby texels, which makes
+the letters and edges look smoother and more natural. Increasing the sample rate helps further by
+averaging multiple sub-pixel samples, reducing aliasing at triangle edges and improving the stability
+of the final appearance.
+</p>
 
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
+
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="nearest_1.png" width="400px"/>
+				  <figcaption>nearest sampling rate of 1</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="nearest_16.png" width="400px"/>
+				  <figcaption>nearest sampling rate of 16</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bilinear_1.png" width="400px"/>
+				  <figcaption>bilinear sampling rate of 1</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bilinear_16.png" width="400px"/>
+				  <figcaption>bilinear sampling rate of 16</figcaption>
+				</td>
+			  </tr>
+			</table>
 		</div>
+		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
+</p>
+Level sampling decides which resolution of the texture to sample from. When a textured triangle is
+drawn smaller on the screen than the original resolution of the texture, a single screen pixel may
+correspond to many texels in the texture. If we always sample from the full-resolution texture,
+high-frequency detail can cause shimmering and noisy aliasing. Mipmapping fixes this by precomputing
+smaller “levels” of the same texture (each level is a downsampled version). Level sampling chooses an
+appropriate mipmap level based on how quickly the UV coordinates change across the screen (i.e., how
+much the texture is being minified). This makes the texture look more stable and reduces aliasing
+when the texture is scaled down.
+In my implementation, I estimate the minification of the texture by looking at how much the UV coordinates
+change from one pixel to the next (using neighboring sample positions). From this, I compute an
+approximate footprint of the pixel in texture space and choose a mipmap level. With <b>L_ZERO</b>,
+the rasterizer always samples from mipmap level 0 (full resolution). With <b>L_NEAREST</b>, it chooses
+the single closest mipmap level to the estimated footprint. After selecting the level, the rasterizer
+still performs pixel sampling at that level (either nearest or bilinear).
+These techniques improve quality in different ways and have different costs. Pixel sampling (nearest
+vs. bilinear) affects how we filter within a single mip level: nearest is fastest but looks blocky,
+while bilinear is slightly more expensive but produces smoother results. Level sampling (mipmaps)
+adds memory usage because it stores multiple downsampled copies of the texture, and it adds some work
+to choose a level, but it greatly reduces aliasing when textures are minified (shrunk on screen).
+Supersampling increases antialiasing power in screen space by taking multiple sub-pixel samples per
+pixel and averaging them, but it is the most expensive computationally because it increases the number
+of triangle/texture evaluations per output pixel; it also does not fully solve minification aliasing by
+itself unless combined with mipmapping. In practice, bilinear filtering + mipmaps gives good texture
+quality efficiently, while supersampling further improves edge smoothness at a higher runtime cost.
+Below are four renders of my custom texture using the required combinations of level sampling and
+pixel sampling. The differences are easiest to see in the pixel inspector: <b>L_ZERO</b> tends to show
+more aliasing/noise when the texture is minified, while <b>L_NEAREST</b> looks more stable because it
+samples from a lower-resolution mip level. Similarly, <b>P_NEAREST</b> looks blockier, while
+<b>P_LINEAR</b> produces smoother transitions by blending neighboring texels.
+
+Overall, the combination that looks the most visually stable is typically <b>L_NEAREST + P_LINEAR</b>,
+because mipmaps reduce minification aliasing and bilinear filtering smooths within-level blockiness.
+</p>
+
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="nearestbi.png" width="400px"/>
+				  <figcaption>L_ZERO + P_NEAREST</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="nearestlinear.png" width="400px"/>
+				  <figcaption>L_NEAREST + P_NEAREST</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="zerobi.png" width="400px"/>
+				  <figcaption>L_ZERO + P_LINEAR</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="zeronearest.png" width="400px"/>
+				  <figcaption>L_NEAREST + P_LINEAR</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+	</div>
 	</body>
 </html>
