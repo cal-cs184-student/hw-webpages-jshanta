@@ -27,8 +27,8 @@
 	</head>
 	<body>
 		<div class="container">
-		<h1>CS184/284A Spring 2025 Homework 1 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<h1>CS184 Spring 2026 Homework 1 Write-Up</h1>
+		<div style="text-align: center;">Shanta Joshi </div>
 
 		<br>
 
@@ -48,10 +48,20 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
-
+		In this assignment, I built a simple rasterization pipeline capable of converting geometric descriptions into pixels displayed on the screen. Given the coordinates of triangle vertices, the rasterizer determines which screen samples lie inside each triangle and computes their corresponding colors. It then applies any transformations before finalizing the rendered image. Beyond filling triangles with solid colors, I implemented barycentric interpolation to smoothly blend vertex colors and to map image textures onto triangles using their texture coordinates.
+To enhance image quality, I incorporated supersampling to minimize aliasing artifacts and jagged edges. I also experimented with different texture sampling approaches, including nearest-neighbor and bilinear interpolation, along with mipmapping techniques for selecting appropriate texture levels. These additions made a noticeable difference in reducing distortion and improving how textures appear at varying scales and distances.
+A significant challenge in this project was creating and configuring a new SVG file to correctly reference and display a custom texture. While the rasterizer logic itself was functioning properly, ensuring that the SVG file was structured correctly required careful attention to XML formatting, directory structure, and relative file paths. Small mistakes, such as incorrect path references or improperly closed tags, prevented the image from rendering. Debugging these issues emphasized how sensitive the rendering process is to seemingly minor configuration details.
+Overall, this project deepened my understanding of how each stage of the rasterization pipeline contributes to the final image. Every step, from coordinate handling to texture sampling, must be implemented precisely. Even small oversights can disrupt the entire rendering process, highlighting the importance of accuracy and attention to detail in computer graphics systems.
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		To rasterize a triangle, I first compute an axis-aligned bounding box around its three vertices by taking the minimum and maximum x and  y coordinates. I clamp those bounds to the framebuffer so I never iterate outside the screen. Then, for every pixel 
+(x,y) inside that box, I evaluate coverage using a sample located at the center of the pixel: (x + 0.5, y + 0.5).I run a point-in-triangle test using edge functions (equivalently, checking the sign of the cross product with respect to each directed edge). If the sample is inside the triangle, I fill that pixel with the triangle color using the helper function (sampling once per pixel for this part).
+To ensure the triangle is rasterized correctly regardless of vertex order, I handle both clockwise and counterclockwise windings by accepting samples that are consistently on the same side of all three edges (either all non-negative or all non-positive). I also treat samples on triangle boundaries as covered, so no edges are missing.
+
+My implementation is at least as efficient as a bounding-box approach because it only considers pixels inside the bounding rectangle of the triangle, instead of scanning the entire framebuffer. The amount of work is proportional to the box height times box width, 
+and for each candidate pixel it performs a constant amount of computation (a few edge-function evaluations / comparisons). This matches the standard method of checking every sample in the bounding box in both asymptotic cost and practical behavior, while 
+avoiding unnecessary checks outside the bounding box entirely.
+
+Below is my screenshot of basic/test4.svg using the default view settings, saved using the S hotkey. The pixel inspector (zoom view) is centered on an interesting region along a thin edge/line, where aliasing and pixel coverage behavior are easy to see.
 
 		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
